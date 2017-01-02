@@ -1,0 +1,1 @@
+socket: arg0 == AF_UNIX || arg0 == AF_INET || arg0 == AF_INET6
