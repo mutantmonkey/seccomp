@@ -1,0 +1,30 @@
+#!/usr/bin/zsh
+# evince sandbox using bwrap
+
+integer seccomp
+exec {seccomp}< <(seccomp-compile \
+    -rules ~/seccomp/x86_64/evince-oz-whitelist.seccomp)
+bwrap \
+    --unshare-ipc \
+    --unshare-pid \
+    --unshare-net \
+    --ro-bind /etc/fonts /etc/fonts \
+    --ro-bind /etc/passwd /etc/passwd \
+    --ro-bind /home /home \
+    --ro-bind /usr /usr \
+    --ro-bind /lib /lib \
+    --ro-bind /lib64 /lib64 \
+    --ro-bind /var/cache/fontconfig /var/cache/fontconfig \
+    --dev /dev \
+    --tmpfs /run \
+    --tmpfs /tmp \
+    --bind /tmp/.X11-unix /tmp/.X11-unix \
+    --bind /run/user/$UID/bus /run/user/$UID/bus \
+    --bind /run/user/$UID/pulse/native /run/user/$UID/pulse/native \
+    --file 4 /run/user/$UID/pulse/client.conf \
+    --setenv PULSE_SERVER unix:/run/user/$UID/pulse/native \
+    --setenv PULSE_CLIENTCONFIG /run/user/$UID/pulse/client.conf \
+    --seccomp $seccomp \
+    /usr/bin/evince "$@" \
+    4<<<"enable-shm = no"
+exec {seccomp}<&-

@@ -1,0 +1,36 @@
+#!/usr/bin/zsh
+# mpv sandbox using bwrap
+
+integer seccomp
+exec {seccomp}< <(seccomp-compile \
+            -rules ~/seccomp/x86_64/mpv-common.seccomp \
+            -rules ~/seccomp/x86_64/mpv-local.seccomp)
+bwrap \
+    --unshare-ipc \
+    --unshare-pid \
+    --unshare-net \
+    --ro-bind /etc/fonts /etc/fonts \
+    --ro-bind /etc/passwd /etc/passwd \
+    --ro-bind /home /home \
+    --bind $HOME/screenshots/mpv $HOME/screenshots/mpv \
+    --bind $HOME/.config/mpv/watch_later $HOME/.config/mpv/watch_later \
+    --ro-bind /usr /usr \
+    --ro-bind /lib /lib \
+    --ro-bind /lib64 /lib64 \
+    --ro-bind /sys/class/drm /sys/class/drm \
+    --ro-bind /sys/dev/char /sys/dev/char \
+    --ro-bind /sys/devices/pci0000:00 /sys/devices/pci0000:00 \
+    --ro-bind /var/cache/fontconfig /var/cache/fontconfig \
+    --dev /dev \
+    --dev-bind /dev/dri /dev/dri \
+    --tmpfs /run \
+    --tmpfs /tmp \
+    --bind /tmp/.X11-unix /tmp/.X11-unix \
+    --bind /run/user/$UID/pulse/native /run/user/$UID/pulse/native \
+    --file 4 /run/user/$UID/pulse/client.conf \
+    --setenv PULSE_SERVER unix:/run/user/$UID/pulse/native \
+    --setenv PULSE_CLIENTCONFIG /run/user/$UID/pulse/client.conf \
+    --seccomp $seccomp \
+    /usr/bin/mpv "$@" \
+    4<<<"enable-shm = no"
+exec {seccomp}<&-
