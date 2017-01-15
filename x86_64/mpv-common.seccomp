@@ -62,6 +62,7 @@ sendmsg: 1
 sendto: 1
 set_robust_list: 1
 set_tid_address: 1
+setsid: 1
 setsockopt: 1
 shutdown: 1
 splice: 1
