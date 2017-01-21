@@ -9,6 +9,7 @@ bwrap \
     --unshare-ipc \
     --unshare-pid \
     --unshare-net \
+    --new-session \
     --ro-bind /etc/fonts /etc/fonts \
     --ro-bind /etc/passwd /etc/passwd \
     --ro-bind /home /home \
